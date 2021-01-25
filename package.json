@@ -1,0 +1,21 @@
+{
+  "name": "Auther",
+  "version": "1.0.0",
+  "description": "",
+  "main": "handler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@middy/core": "^1.5.2",
+    "@middy/http-error-handler": "^1.5.2",
+    "@middy/http-json-body-parser": "^1.5.2",
+    "@middy/validator": "^1.5.2",
+    "cookie": "^0.4.1",
+    "http-errors": "^1.8.0",
+    "jsonwebtoken": "^8.5.1"
+  }
+}

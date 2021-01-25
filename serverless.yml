@@ -1,0 +1,79 @@
+service: auther
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+
+  stage: dev
+  region: us-east-1
+
+  timeout: 3
+  memorySize: 128
+  variableSyntax: '\${{([\s\S]+?)}}'
+
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+      Resource:
+        - !GetAtt UserTable.Arn
+
+  environment:
+    USER_TABLE: !Ref UserTable
+    SALT: thisIsASuperSecretSalt
+    SECRET: thisIsASuperSecretSecret
+    TOKEN_TIMEOUT: 5m
+    REFRESH_TIMEOUT: 1d
+
+functions:
+  Register:
+    handler: src/lambdas/Register.handler
+    events:
+      - http:
+          path: register
+          method: post
+
+  Login:
+    handler: src/lambdas/Login.handler
+    events:
+      - http:
+          path: login
+          method: post
+
+  Refresh:
+    handler: src/lambdas/Refresh.handler
+    events:
+      - http:
+          path: refresh
+          method: post
+
+  Private:
+    handler: src/lambdas/Private.handler
+    events:
+      - http:
+          path: private
+          method: get
+          authorizer:
+            name: Authorize
+            identitySource: method.request.header.Cookie
+            type: request
+
+  Authorize:
+    handler: src/lambdas/Authorize.handler
+
+resources:
+  Resources:
+    UserTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: PK
+            AttributeType: S
+        KeySchema:
+          - AttributeName: PK
+            KeyType: HASH
+        TableName: auther-user-table
+        BillingMode: PAY_PER_REQUEST
